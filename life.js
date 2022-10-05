@@ -1,14 +1,20 @@
 'use strict';
-const CELL_SIZE = 20;
+const CELL_SIZE = 4;
 const RADIX = 10;
-const timeOut = 25;
+const timeOut = 20; // ms
 const cells = [
-  [false, false, true, false, false, false],
-  [true, false, true, false, false, false],
-  [false, true, true, false, false, false],
-  [false, false, false, false, false, false],
-  [false, false, false, false, false, false],
-  [false, false, false, false, false, false],
+  // [false, false, true, false, false, false],
+  // [true, false, true, false, false, false],
+  // [false, true, true, false, false, false],
+  // [false, false, false, false, false, false],
+  // [false, false, false, false, false, false],
+  // [false, false, false, false, false, false],
+  // [false, true, true, false, false, true],
+  // [true, false, true, false, false, true],
+  // [false, true, true, false, false, false],
+  // [false, false, false, false, false, false],
+  // [false, false, false, false, false, false],
+  // [true, true, false, false, false, true],
 ];
 
 function play(id, func) {
@@ -78,64 +84,71 @@ function Game(width, height, canvasContext) {
 
   const _getLiveNeighbors = (x, y) => {
     let count = 0;
-    //ПРАВИЛА ИГРЫ
-
-    //каждый первый if проверяет, что мы не зашли за границы сетки!
-
-    //Проверяем верхнюю левую ячейку !
-    if (x - 1 >= 0 && y - 1 >= 0) {
-      if (cells[x - 1][y - 1] === true) {
-        count += 1;
+    let shift = {
+      x: {
+        left: 1,
+        right: 1
+      },
+      y: {
+        top: 1,
+        down: 1
       }
+    }
+    // Замыкаем границы
+    // Лево - Право
+    if (x + 1 >= this.size.x) {
+      shift.x.right = x * -1;
+    } else if (x - 1 < 0) {
+      shift.x.left = (this.size.x - 1) * -1;
+    }
+
+    // Вверх - Низ
+    if (y + 1 >= this.size.y) {
+      shift.y.down = y * -1;
+    }
+    if (y - 1 < 0) {
+      shift.y.top = (this.size.y - 1) * -1;
+    }
+
+    //ПРАВИЛА ИГРЫ
+    //Проверяем верхнюю левую ячейку !
+    if (cells[x - shift.x.left][y - shift.y.top] === true) {
+      count += 1;
     }
 
     //Проверяем верхнюю ячейку !
-    if (y - 1 >= 0) {
-      if (cells[x][y - 1] === true) {
-        count += 1;
-      }
+    if (cells[x][y - shift.y.top] === true) {
+      count += 1;
     }
 
     //Проверяем верхнюю правую ячейку !
-    if (x + 1 < this.size.x && y - 1 >= 0) {
-      if (cells[x + 1][y - 1] === true) {
-        count += 1;
-      }
+    if (cells[x + shift.x.right][y - shift.y.top] === true) {
+      count += 1;
     }
 
     //Проверяем левую ячейку !
-    if (x - 1 >= 0) {
-      if (cells[x - 1][y] === true) {
-        count += 1;
-      }
+    if (cells[x - shift.x.left][y] === true) {
+      count += 1;
     }
 
     //Проверяем правую ячейку !
-    if (x + 1 < this.size.x) {
-      if (cells[x + 1][y] === true) {
-        count += 1;
-      }
+    if (cells[x + shift.x.right][y] === true) {
+      count += 1;
     }
 
     //Проверяем нижнюю левую ячейку !
-    if (x - 1 >= 0 && y + 1 < this.size.y) {
-      if (cells[x - 1][y + 1] === true) {
-        count += 1;
-      }
+    if (cells[x - shift.x.left][y + shift.y.down] === true) {
+      count += 1;
     }
 
     //Проверяем нижнюю ячейку !
-    if (y + 1 < this.size.y) {
-      if (cells[x][y + 1] === true) {
-        count += 1;
-      }
+    if (cells[x][y + shift.y.down] === true) {
+      count += 1;
     }
 
     //Проверяем нижнюю правую ячейку !
-    if (x + 1 < this.size.x && y + 1 < this.size.y) {
-      if (cells[x + 1][y + 1] === true) {
-        count += 1;
-      }
+    if (cells[x + shift.x.right][y + shift.y.down] === true) {
+      count += 1;
     }
 
     return count;
@@ -213,7 +226,7 @@ function init() {
   canvasGame.height = document.getElementById('game').height;
 
   const grid = new Grid(canvasGrid.width, canvasGrid.height, canvasGrid);
-  // grid.initArray();
+  grid.initArray();
   grid.draw();
 
   const game = new Game(canvasGame.width, canvasGame.height, canvasGame);
